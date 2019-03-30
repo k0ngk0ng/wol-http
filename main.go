@@ -4,10 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"flag"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	wol "github.com/sabhiram/go-wol"
 )
+
+type options struct {
+	Port int
+}
 
 func wake(macAddr string, bcastAddr string) error {
 	if len(macAddr) == 0 {
@@ -58,7 +64,28 @@ func wake(macAddr string, bcastAddr string) error {
 	return nil
 }
 
+
+func getOptions() options {
+	var options options
+
+	flag.IntVar(&options.Port, "p", 8000, "a port number to listen")
+	flag.Usage = usage
+	flag.Parse()
+
+	return options
+}
+
+func usage() {
+	fmt.Fprintf(os.Stderr, 
+		"Usage: wol-http [-p port] \n" +
+		"Options: \n")
+	flag.PrintDefaults()
+	os.Exit(0)
+}
+
 func main() {
+	options := getOptions()
+	
 	r := gin.Default()
 	r.GET("/wol/wake", func(c *gin.Context) {
 		mac := c.Query("mac")
@@ -77,5 +104,5 @@ func main() {
 			"message": "ok",
 		})
 	})
-	r.Run(":8000")
+	r.Run(fmt.Sprintf(":%d", options.Port))
 }
