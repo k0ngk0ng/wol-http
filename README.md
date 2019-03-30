@@ -9,6 +9,7 @@
 ```bash
 $ git clone https://github.com/k0ngk0ng/wol-http.git
 $ cd wol-http
+$ export GO111MODULE=on
 $ go build
 ```
 
